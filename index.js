@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -9,21 +10,31 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t6q9s.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.wlpyb.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 async function run() {
     try {
         await client.connect();
-        const tvCollection = client.db('tvStar').collection('tv');
 
+        const tvCollection = client.db('tv_star_management').collection('tvs');
         //TV API
         app.get('/tv', async (req, res) => {
             const query = {};
             const cursor = tvCollection.find(query)
             const tvStar = await cursor.toArray();
             res.send(tvStar);
+        })
+        app.post('/tv', async (req, res) => {
+            const tv = req.body;
+            const result = await tvCollection.insertOne(tv);
+            res.send(result);
+        });
+
+        app.delete('/tv/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await tvCollection.deleteOne(query);
+            res.send(result);
         })
     }
     finally {
