@@ -18,12 +18,14 @@ async function run() {
 
         const tvCollection = client.db('tv_star_management').collection('tvs');
 
+        //Get all products
         app.get('/tv', async (req, res) => {
             const query = {};
             const cursor = tvCollection.find(query)
             const tvStar = await cursor.toArray();
             res.send(tvStar);
         })
+
 
         app.get('/tv/:id', async (req, res) => {
             const id = req.params.id;
@@ -32,12 +34,14 @@ async function run() {
             res.send(result);
         });
 
+        // Post Products: Add a new product
         app.post('/tv', async (req, res) => {
             const tv = req.body;
             const result = await tvCollection.insertOne(tv);
             res.send(result);
         });
 
+        // update Products
         app.put('/tv/:id', async (req, res) => {
             const id = req.params.id
             const updateTv = req.body;
