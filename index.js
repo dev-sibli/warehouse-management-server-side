@@ -17,18 +17,41 @@ async function run() {
         await client.connect();
 
         const tvCollection = client.db('tv_star_management').collection('tvs');
-        //TV API
+
         app.get('/tv', async (req, res) => {
             const query = {};
             const cursor = tvCollection.find(query)
             const tvStar = await cursor.toArray();
             res.send(tvStar);
         })
+
+        app.get('/tv/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await tvCollection.findOne(query);
+            res.send(result);
+        });
+
         app.post('/tv', async (req, res) => {
             const tv = req.body;
             const result = await tvCollection.insertOne(tv);
             res.send(result);
         });
+
+        app.put('/tv/:id', async (req, res) => {
+            const id = req.params.id
+            const updateTv = req.body;
+            console.log(updateTv.quantity);
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedDoc = {
+                $set: {
+                    quantity: parseInt(updateTv.quantity),
+                }
+            };
+            const result = await tvCollection.updateOne(filter, updatedDoc, options);
+            res.send(result);
+        })
 
         app.delete('/tv/:id', async (req, res) => {
             const id = req.params.id
